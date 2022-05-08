@@ -439,6 +439,16 @@ class GameLoop {
     life_ = 3;
     score_ = 0;
   }
+  void DrawLife(){
+    int life_arr[3][4] = {
+        {0, 220, 15, 235}, {25, 220, 40, 235}, {50, 220, 65, 235}};
+    for (int i = 0; i < life_; i++) {
+      display.setForeground(clrRed);
+      // display.drawRectangle(bool fill, int x1, int y1, int x2, int y2)
+      display.drawEllipse(true, life_arr[i][0], life_arr[i][1],
+                            life_arr[i][2], life_arr[i][3]);
+    }
+  }
   void Loop() {
     while (true) {
       LoopStart();
@@ -464,22 +474,16 @@ class GameLoop {
       f->Update();
     }
     // 更新分数和生命
-    char score[50];
-    memset(score,0,50);
-    snprintf(score, 50, "Your Score: %d",score_);
-    int x = 160;
-    int y = 230;
-    convert(x,y);
-    display.drawText(score,x,y);
-   
-    char life[50];
-    memset(life,0,50);
-    snprintf(life, 50, "Your Life: %d",life_);
-    int x1 = 160;
-    int y1 = 210;
-    convert(x,y);
-    display.drawText(life,x1,y1);
+    // char score[50];
+    // memset(score,0,50);
+    // snprintf(score, 50, "Your Score: %d",score_);
+    // int x = 160;
+    // int y = 230;
+    // convert(x,y);
+    // // display.
+    // display.drawText(score,x,y);
 
+    DrawLife();
     // 这里才真正的改变物体的位置
     AdjustMarioPosition();
     AdjustTurtlePosition();
@@ -546,8 +550,9 @@ class GameLoop {
         tur->direction_ = -tur->direction_;
         // 重新调整位置
         // 现在在被碰撞的左边
+        // 直接向各自的反方向运行
         t->GetRect()->move(5*t->direction_,0);
-        tur->GetRect()->move(5*t->direction_,0);
+        tur->GetRect()->move(5*tur->direction_,0);
 
         // if (t->GetRect()->right() > current.left()) {
         //   // t->GetRect()->move(-7,0);
