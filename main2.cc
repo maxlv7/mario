@@ -546,15 +546,18 @@ class GameLoop {
         tur->direction_ = -tur->direction_;
         // 重新调整位置
         // 现在在被碰撞的左边
-        if (t->GetRect()->left() < current.left()) {
-          // t->GetRect()->move(-7,0);
-          t->GetRect()->x2_ = current.left();
-          t->GetRect()->x1_ = t->GetRect()->x2_ - 20;
-        } else {
-          // t->GetRect()->move(7,0);
-          t->GetRect()->x1_ = current.right();
-          t->GetRect()->x2_ = t->GetRect()->x1_ + 20;
-        }
+        t->GetRect()->move(5*t->direction_,0);
+        tur->GetRect()->move(5*t->direction_,0);
+
+        // if (t->GetRect()->right() > current.left()) {
+        //   // t->GetRect()->move(-7,0);
+        //   t->GetRect()->x2_ = current.left();
+        //   t->GetRect()->x1_ = t->GetRect()->x2_ - 20;
+        // } else if(t->GetRect()->right() <= current.left()) {
+        //   // t->GetRect()->move(7,0);
+        //   t->GetRect()->x1_ = current.right();
+        //   t->GetRect()->x2_ = t->GetRect()->x1_ + 20;
+        // }
       }
     }
   }
