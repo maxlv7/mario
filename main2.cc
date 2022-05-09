@@ -54,14 +54,14 @@ void buttonInterruptHandler(void* instancePointer) {
   // 4 jump
 
   // add a delay to eliminate double clicking
-  for (int j = 0; j < 3000; j++)
-    ;
+  // for (int j = 0; j < 3000; j++)
+  //   ;
 
   XGpio_InterruptClear(&input, GPIO_INT_ID);
 }
 
 /**********************************************************/
-
+int jjjj = 1;
 enum Type { kMario, kTurtle, kPipe, kPow, KFloor };
 class Rect{
   public:
@@ -330,9 +330,9 @@ class Mario {
     type_ = kMario;
     state_ = kStanding;
     color_ = clrYellow;
-    int x1_ = 50;
+    int x1_ = 50+60;
     int y1_ = 30;
-    int x2_ = 60;
+    int x2_ = 60+60;
     int y2_ = 50;
     rect_ = Rect(x1_, y1_, x2_, y2_);
     g = 1.01;
@@ -353,8 +353,10 @@ class Mario {
   void HandleState() {
     if (state_ == kStanding) {
       if (switch_val == 1) {
+        x_vel = -5;
         SetState(kWalk);
       } else if (switch_val == 2) {
+        x_vel = 5;
         SetState(kWalk);
       } else if (switch_val == 4) {
         SetState(kJump);
@@ -396,8 +398,6 @@ class Mario {
       // }
       // y_vel = -55;
       y_vel = -5;
-    }else if (state_ == kDeath) {
-      
     }
   }
   Rect GetRectClone(){
