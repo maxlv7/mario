@@ -486,6 +486,17 @@ class GameLoop {
                             life_arr[i][3], life_arr[i][2]);
     }
   }
+  void DrawScore(){
+    // 更新分数和生命
+    char score[16];
+    memset(score,0,16);
+    snprintf(score, 16, "S: %d",score_);
+    int x = 300;
+    int y = 200;
+    convert(x,y);
+    display.setForeground(clrWhite);
+    display.drawText(score, x,y);
+  }
   void Loop() {
     while (true) {
       LoopStart();
@@ -510,15 +521,8 @@ class GameLoop {
     for (auto f : turtle_) {
       f->Update();
     }
-    // 更新分数和生命
-    char score[32];
-    memset(score,0,32);
-    snprintf(score, 32, "S: %d",score_);
-    int x = 300;
-    int y = 180;
-    convert(x,y);
-    display.drawText(score, x,y);
 
+    DrawScore();
     DrawLife();
     // 这里才真正的改变物体的位置
     AdjustMarioPosition();
