@@ -437,8 +437,10 @@ class GameLoop {
                          pipe_arr[i][3]);
       pipe_.push_back(p);
     }
-    int turtle_arr[2][4] = {{20, 180, 40, 190}, {200, 180, 220, 190}};
-    for (int j = 0; j < 2; j++) {
+    int turtle_arr[][4] = {{20, 180, 40, 190}, {200, 180, 220, 190},
+    {40,80,60,90}
+    };
+    for (int j = 0; j < 3; j++) {
       Turtle* t = new Turtle(turtle_arr[j][0], turtle_arr[j][1],
                              turtle_arr[j][2], turtle_arr[j][3]);
       turtle_.push_back(t);
@@ -494,8 +496,8 @@ class GameLoop {
     // 更新分数和生命
     char score[32];
     memset(score,0,32);
-    snprintf(score, 32, "Score: %d",score_);
-    int x = 20;
+    snprintf(score, 32, "S: %d",score_);
+    int x = 300;
     int y = 180;
     convert(x,y);
     display.drawText(score, x,y);
@@ -566,16 +568,6 @@ class GameLoop {
         // 直接向各自的反方向运行
         t->GetRect()->move(5*t->direction_,0);
         tur->GetRect()->move(5*tur->direction_,0);
-
-        // if (t->GetRect()->right() > current.left()) {
-        //   // t->GetRect()->move(-7,0);
-        //   t->GetRect()->x2_ = current.left();
-        //   t->GetRect()->x1_ = t->GetRect()->x2_ - 20;
-        // } else if(t->GetRect()->right() <= current.left()) {
-        //   // t->GetRect()->move(7,0);
-        //   t->GetRect()->x1_ = current.right();
-        //   t->GetRect()->x2_ = t->GetRect()->x1_ + 20;
-        // }
       }
     }
   }
@@ -603,23 +595,25 @@ class GameLoop {
       t->SetState(Turtle::kFall);
     }else{
       // 如果有一个碰到了的话，就不再下落
-      t->y_vel = 0;
-      t->SetState(Turtle::kWalk);
-      // 如果是在最下层 并且到了边缘，
-      // 那么就让它从最上层的另一边出来
-      if(is_floor){
-        Rect *p_rect = t->GetRect();
-        if (p_rect->right() <= 5) {
-          p_rect->x1_ = 320 - 20;
-          p_rect->x2_ = 320;
-          p_rect ->y1_ = 180;
-          p_rect->y2_ = 190;
-        }
-        if (p_rect->left() >= 315) {
-          p_rect->x1_ = 0;
-          p_rect->x2_ = 20;
-          p_rect->y1_ = 180;
-          p_rect->y2_ = 190;
+      if (t->GetState() != Turtle::kVertigo) {
+        t->y_vel = 0;
+        t->SetState(Turtle::kWalk);
+        // 如果是在最下层 并且到了边缘，
+        // 那么就让它从最上层的另一边出来
+        if (is_floor) {
+          Rect* p_rect = t->GetRect();
+          if (p_rect->right() <= 5) {
+            p_rect->x1_ = 320 - 20;
+            p_rect->x2_ = 320;
+            p_rect->y1_ = 180;
+            p_rect->y2_ = 190;
+          }
+          if (p_rect->left() >= 315) {
+            p_rect->x1_ = 0;
+            p_rect->x2_ = 20;
+            p_rect->y1_ = 180;
+            p_rect->y2_ = 190;
+          }
         }
       }
     }
@@ -724,7 +718,7 @@ class GameLoop {
       // 下降
       if(mar.top() > t_fl->top()){
           t_mar->y1_ = t_fl->y2_;
-          t_mar->y2_ = t_fl->y1_ + 20;
+          t_mar->y2_ = t_mar->y1_ + 20;
           mario_->SetState(Mario::kStanding);
           mario_->y_vel = 0;
       }
@@ -744,7 +738,7 @@ class GameLoop {
       // 下降
       if(mar.top() > is_pipe->GetRect()->top()){
           t_mar->y1_ = t_pipe->y2_;
-          t_mar->y2_ = t_pipe->y1_ + 20;
+          t_mar->y2_ = t_mar->y1_ + 20;
           mario_->SetState(Mario::kStanding);
           mario_->y_vel = 0;
       }
