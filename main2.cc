@@ -187,13 +187,13 @@ class LifePipe {
  public:
   LifePipe(int x1,int y1,int x2,int y2) {
     type_ = kLifePipe;
-    color_ = clrDkGreen;
+    color_ = clrBlue;
     // rect_ = Rect(150, 195, 170, 205);
     rect_ = Rect(x1, y1, x2, y2);
     state_ = kDis;
   }
   void Update() {
-    if (state_ == kDeath) {
+    if (state_ == kDeath || state_ == kDis) {
       rect_.x1_ = 0;
       rect_.x2_ = 0;
       rect_.y1_ = 0;
