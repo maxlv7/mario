@@ -507,6 +507,7 @@ class GameLoop {
     lifepipe_ = new LifePipe(0,0,0,0);
     life_ = 3;
     score_ = 0;
+    state_ = kGame;
   }
   int ChooseColor(int i){
     if(i>13){
@@ -542,12 +543,45 @@ class GameLoop {
   }
   void Loop() {
     while (true) {
-      LoopStart();
+      display.clearDisplay(clrBlack);
+      if (state_ == kGame) {
+        LoopStart();
+      } else if (state_ == kPause) {
+        char buffer[16];
+        memset(buffer, 0, 16);
+        snprintf(buffer, 16, "Game Pause!");
+        int x = 150;
+        int y = 140;
+        convert(x, y);
+        display.setForeground(clrWhite);
+        display.drawText(buffer, x, y);
+      } else if (state_ == kGameOver) {
+        char buffer[16];
+        memset(buffer, 0, 16);
+        snprintf(buffer, 16, "Game Over!");
+        int x = 150;
+        int y = 140;
+        convert(x, y);
+        display.setForeground(clrWhite);
+        display.drawText(buffer, x, y);
+        break;
+      }
       delay(166);
     }
   }
   void LoopStart(){
-   display.clearDisplay(clrBlack);
+  //  display.clearDisplay(clrBlack);
+  if(life_ <=0){
+    SetState(kGameOver);
+    return;
+  }
+  if (switch_val == 8) {
+    if (state_ == kGame) {
+      SetState(kPause);
+    } else if (state_ == kPause) {
+      SetState(kGame);
+    }
+  }
    UpdateAll();
   }
   void UpdateAll(){
@@ -571,6 +605,7 @@ class GameLoop {
     AdjustMarioPosition();
     AdjustTurtlePosition();
     CheckLifePipeAlive();
+    
   }
   void CheckLifePipeAlive(){
     if(lifepipe_->GetState() == LifePipe::kReady){
@@ -919,6 +954,9 @@ class GameLoop {
         pow_.pop_back();
     }
   }
+  enum State {kGame,kPause,kGameOver};
+  State GetState(){return state_;};
+  void SetState(State state){state_ = state;};
  private:
   std::vector<Floor*> floor_;
   std::vector<Pow*> pow_;
@@ -926,6 +964,7 @@ class GameLoop {
   std::vector<Turtle*> turtle_;
   Mario* mario_;
   LifePipe *lifepipe_;
+  State state_;
   int life_;
   int score_;
 };
