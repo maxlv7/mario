@@ -470,7 +470,7 @@ class GameLoop {
   void Loop() {
     while (true) {
       LoopStart();
-      delay(200);
+      delay(1000);
     }
   }
   void LoopStart(){
@@ -498,6 +498,7 @@ class GameLoop {
     int x = 20;
     int y = 180;
     convert(x,y);
+    display.drawText(score, x,y);
 
     DrawLife();
     // 这里才真正的改变物体的位置
@@ -721,10 +722,11 @@ class GameLoop {
       Rect *t_mar = mario_->GetRect();
       Rect *t_fl = is_floor->GetRect();
       // 下降
-      if(mar.top() > is_floor->GetRect()->top()){
+      if(mar.top() > t_fl->top()){
           t_mar->y1_ = t_fl->y2_;
           t_mar->y2_ = t_fl->y1_ + 20;
           mario_->SetState(Mario::kStanding);
+          mario_->y_vel = 0;
       }
       // if(current_state == Mario::kFall){
       //     Rect *t_fl = is_floor->GetRect();
@@ -740,14 +742,14 @@ class GameLoop {
       Rect *t_mar = mario_->GetRect();
       Rect *t_pipe = is_pipe->GetRect();
       // 下降
-      if(mar.top() > is_floor->GetRect()->top()){
+      if(mar.top() > is_pipe->GetRect()->top()){
           t_mar->y1_ = t_pipe->y2_;
           t_mar->y2_ = t_pipe->y1_ + 20;
           mario_->SetState(Mario::kStanding);
           mario_->y_vel = 0;
       }
       //上去  
-      else if(mar.top() < is_floor->GetRect()->top()){
+      else if(mar.top() < is_pipe->GetRect()->top()){
         //判断是否有乌龟
         mar.move(0, 15);
         for (auto turtle : turtle_) {
