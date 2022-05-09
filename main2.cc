@@ -62,7 +62,7 @@ void buttonInterruptHandler(void* instancePointer) {
 
 /**********************************************************/
 int jjjj = 1;
-enum Type { kMario, kTurtle, kPipe, kPow, KFloor };
+enum Type { kMario, kTurtle, kPipe,kLifePipe, kPow, KFloor };
 class Rect{
   public:
   Rect(){
@@ -183,6 +183,46 @@ class Pipe {
   Rect rect_;
 };
 
+class LifePipe {
+ public:
+  LifePipe(int x1,int y1,int x2,int y2) {
+    type_ = kLifePipe;
+    color_ = clrDkGreen;
+    // rect_ = Rect(150, 195, 170, 205);
+    rect_ = Rect(x1, y1, x2, y2);
+    state_ = kDis;
+  }
+  void Update() {
+    if (state_ == kDeath) {
+      rect_.x1_ = 0;
+      rect_.x2_ = 0;
+      rect_.y1_ = 0;
+      rect_.y2_ = 0;
+      return;
+    }
+    if (state_ == kReady) {
+      Rect rect = GetRectClone();
+      convert(rect);
+      display.setForeground(color_);
+      display.drawRectangle(true, rect.x1_, rect.y1_, rect.x2_, rect.y2_);
+    }
+  }
+
+  Rect GetRectClone(){
+    return rect_;
+  }
+  Rect* GetRect(){
+    return &rect_;
+  }
+  enum State {kDis,kReady,kDeath};
+  State GetState(){return state_;};
+  void SetState(State state){state_ = state;};
+ private:
+  Type type_;
+  uint32_t color_;
+  Rect rect_;
+  State state_;
+};
 class Pow {
  public:
   Pow() {
@@ -204,11 +244,12 @@ class Pow {
     convert(rect);
     display.setForeground(color_);
     display.drawRectangle(true, rect.x1_, rect.y1_, rect.x2_, rect.y2_);
+    
     display.setForeground(clrWhite);
     char L[2];
     memset(L,0,2);
     snprintf(L, 2, "%d",times);
-    display.drawText(L,75,155);
+    display.drawText(L,72,155);
   }
   void HandleState(){
     if(state_ == kHit){
@@ -403,6 +444,8 @@ class Mario {
       // }
       // y_vel = -55;
       y_vel = -5;
+    }else if(state_ == kDeath){
+
     }
   }
   Rect GetRectClone(){
@@ -461,7 +504,7 @@ class GameLoop {
     pow_.push_back(pow);
 
     mario_ = new Mario();
-
+    lifepipe_ = new LifePipe(0,0,0,0);
     life_ = 3;
     score_ = 0;
   }
@@ -490,9 +533,9 @@ class GameLoop {
     // 更新分数和生命
     char score[16];
     memset(score,0,16);
-    snprintf(score, 16, "S: %d",score_);
+    snprintf(score, 16, "S:%d",score_);
     int x = 300;
-    int y = 200;
+    int y = 190;
     convert(x,y);
     display.setForeground(clrWhite);
     display.drawText(score, x,y);
@@ -527,6 +570,17 @@ class GameLoop {
     // 这里才真正的改变物体的位置
     AdjustMarioPosition();
     AdjustTurtlePosition();
+    CheckLifePipeAlive();
+  }
+  void CheckLifePipeAlive(){
+    if(lifepipe_->GetState() == LifePipe::kReady){
+      Rect c_life = lifepipe_->GetRectClone();
+      Rect mar = mario_->GetRectClone();
+      if (!IsRectIntersect(mar, c_life)) {
+          lifepipe_->SetState(LifePipe::kDeath);
+      }
+    }
+
   }
   void AdjustMarioPosition(){
      // 这时候物体的状态已经被改变了，现在物体的位置就在最终的位置上
@@ -667,8 +721,24 @@ class GameLoop {
           t->Kill();
           score_ += 800;
         } else {
-          mario_->SetState(Mario::kDeath);
+          // 死亡 并且从上面复活
+          // Rect(150, 195, 170, 205);
+          // mario_->SetState(Mario::kDeath);
+          Rect * r = mario_->GetRect();
+          Rect * life = lifepipe_->GetRect();
+
+          r->x1_ = 155;
+          r->x2_ = 165;
+          r->y1_ = 205;
+          r->y2_ = 225;
           life_ -=1;
+          mario_->SetState(Mario::kStanding);
+          lifepipe_->SetState(LifePipe::kReady);
+          // Rect(150, 195, 170, 205);
+          life->x1_ = 150;
+          life->y1_ = 195;
+          life->x2_ = 170;
+          life->y2_ = 205;
         }
       }
   }
@@ -749,16 +819,6 @@ class GameLoop {
           mario_->SetState(Mario::kStanding);
           mario_->y_vel = 0;
       }
-      // if(current_state == Mario::kFall){
-      //     Rect *t_fl = is_floor->GetRect();
-      //     Rect *t_mar = is_floor->GetRect();
-
-      //     t_mar->y1_ = t_fl->y2_;
-      //     t_mar->y2_ = t_fl->y1_ + 20;
-
-      //     mario_->y_vel = 0;
-      //     mario_->SetState(Mario::kStanding);
-      // }
     } else if (is_pipe) {
       Rect *t_mar = mario_->GetRect();
       Rect *t_pipe = is_pipe->GetRect();
@@ -799,55 +859,6 @@ class GameLoop {
       }else {
        
       }
-
-      // 如果是下落的话 如果是落在了管子上面
-      // if (mario_->GetState() == Mario::kFall) {
-      // // if (mar.bottom() > is_pipe->GetRect()->bottom()) {
-      //   //修正mario的位置
-      //   Rect* t_mar = mario_->GetRect();
-
-      //   // 还原位置
-      //   t_mar->move(-mario_->x_vel, -mario_->y_vel);
-      //   // 到下一层的梯子上
-      //   t_mar->y1_ = is_pipe->GetRect()->y2_;
-      //   t_mar->y2_ = t_mar->y1_ + 20;
-      //   mario_->SetState(Mario::kStanding);
-
-      //   // t_mar->move(50, 50);
-      // } else if (mario_->GetState() == Mario::kJump) {
-      // // } else if (mar.top() < is_pipe->GetRect()->top()) {
-      //   // 如果是跳起来的话
-      //   //判断水管上面有没有乌龟
-      //   for (auto turtle : turtle_) {
-      //     if (turtle->GetState() == Turtle::kDeath) {
-      //       continue;
-      //     }
-      //     Rect tur = turtle->GetRectClone();
-      //     if (IsRectIntersect(tur, mar)) {
-      //       // 如果有，就把乌龟置为晕的状态，乌龟变为粉色
-      //       // 否则就反转乌龟的状态
-      //       if (turtle->GetState() == Turtle::kVertigo) {
-      //         turtle->SetState(Turtle::kWalk);
-      //       } else {
-      //         turtle->SetState(Turtle::kVertigo);
-      //       }
-      //     }
-      //   }
-      //   // 修正mario的位置
-      //   Rect* rect = mario_->GetRect();
-      //   if(mario_->y_acc == 40){
-      //   // 复原原来的位置
-      //   rect->move(-mario_->x_vel, -mario_->y_acc);
-      //   // rect->y1_ -= mario_->y_vel;
-      //   // rect->y2_ -= mario_->y_vel;
-      //   // rect->y1_ += 20;
-      //   // rect->y2_ += 20;
-      //   // 刚好顶着水管
-      //   rect->move(0, 20);
-      //   // mario_->SetState(Mario::kFall);
-      //   }
-
-      // }
     } 
     mar.move(0,-5);
     TestMarioIsFalling();
@@ -862,7 +873,12 @@ class GameLoop {
     Pow* is_pow = nullptr;
     Pipe* is_pipe = nullptr;
     Floor* is_floor = nullptr;
+    LifePipe *is_lifepipe = nullptr;
 
+    Rect c_life = lifepipe_->GetRectClone();
+    if (IsRectIntersect(mar, c_life)) {
+      is_lifepipe = lifepipe_;
+    }
     // 是否撞到了pow
     for (auto pp : pow_) {
       if (pp->GetState() == Pow::kDeath) {
@@ -893,7 +909,7 @@ class GameLoop {
       }
     }
     if (is_floor == nullptr && is_pipe == nullptr && is_pow == nullptr &&
-        current_state != Mario::kJump) {
+        current_state != Mario::kJump && is_lifepipe == nullptr) {
       // 让mario下落
       mario_->SetState(Mario::kFall);
     }
@@ -915,6 +931,7 @@ class GameLoop {
   std::vector<Pipe*> pipe_;
   std::vector<Turtle*> turtle_;
   Mario* mario_;
+  LifePipe *lifepipe_;
   int life_;
   int score_;
 };
