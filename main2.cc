@@ -423,12 +423,14 @@ class GameLoop {
     }
     int turtle_arr[2][4] = {{20, 180, 40, 190}, {200, 180, 220, 190}};
     for (int j = 0; j < 2; j++) {
-      Turtle* t = new Turtle(turtle_arr[j][1], turtle_arr[j][0],
-                             turtle_arr[j][3], turtle_arr[j][2]);
+      Turtle* t = new Turtle(turtle_arr[j][0], turtle_arr[j][1],
+                             turtle_arr[j][2], turtle_arr[j][3]);
       turtle_.push_back(t);
     }
     turtle_[0]->direction_ = 1;
     turtle_[1]->direction_ = -1;
+
+    turtle_[0]->color_ = clrRed;
     turtle_[1]->color_ = clrDkCyan;
 
     Pow *pow = new Pow();
@@ -445,8 +447,8 @@ class GameLoop {
     for (int i = 0; i < life_; i++) {
       display.setForeground(clrRed);
       // display.drawRectangle(bool fill, int x1, int y1, int x2, int y2)
-      display.drawEllipse(true, life_arr[i][0], life_arr[i][1],
-                            life_arr[i][2], life_arr[i][3]);
+      display.drawEllipse(true, life_arr[i][1], life_arr[i][0],
+                            life_arr[i][3], life_arr[i][2]);
     }
   }
   void Loop() {
