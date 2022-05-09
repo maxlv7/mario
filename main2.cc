@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <xgpio.h>
-
+#include <math.h>
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
@@ -144,7 +144,18 @@ static bool IsRectIntersect(int x1, int y1, int x2, int y2, int x3, int y3,
 static bool IsRectIntersect(Rect a,Rect b){
   return IsRectIntersect(a.x1_,a.y1_,a.x2_,a.y2_,b.x1_,b.y1_,b.x2_,b.y2_);
 }
+static int computeArea(int ax1, int ay1, int ax2, int ay2, int bx1, int by1,
+                       int bx2, int by2) {
+  int area1 = (ax2 - ax1) * (ay2 - ay1), area2 = (bx2 - bx1) * (by2 - by1);
+  int overlapWidth = fmin(ax2, bx2) - fmax(ax1, bx1),
+      overlapHeight = fmin(ay2, by2) - fmax(ay1, by1);
+  int overlapArea = fmax(overlapWidth, 0) * fmax(overlapHeight, 0);
+  return overlapArea;
+}
 
+static int computeArea(Rect a, Rect b) {
+  return computeArea(a.x1_, a.y1_, a.x2_, a.y2_, b.x1_, b.y1_, b.x2_, b.y2_);
+}
 // 管道类
 class Pipe {
  public:
@@ -357,29 +368,34 @@ class Mario {
       // 4 jump
       if (switch_val == 1) {
         x_vel = -5;
+        SetState(kStanding);
       } else if (switch_val == 2) {
         x_vel = 5;
+        SetState(kStanding);
       } else {
         x_vel = 0;
         SetState(kStanding);
       }
     } else if (state_ == kJump) {
-      if(y_acc < 45){
-        y_vel = 5;
-        y_acc+=5;
-      }else{
+      y_vel = 20;
+      // if(y_acc < 45){
+      //   y_vel = 5;
+      //   y_acc+=5;
+      // }else{
+      // SetState(kFall);
+      // y_acc = 0;
+      // }
       SetState(kFall);
-      y_acc = 0;
-      }
     } else if (state_ == kFall) {
-      if(y_acc < 55){
-        y_acc += 5;
-        y_vel = -5;
-      }else {
-      // SetState(kStanding);
-      y_acc = 0;
-      }
+      // if(y_acc < 55){
+      //   y_acc += 5;
+      //   y_vel = -5;
+      // }else {
+      // // SetState(kStanding);
+      // y_acc = 0;
+      // }
       // y_vel = -55;
+      y_vel = -5;
     }else if (state_ == kDeath) {
       
     }
@@ -479,7 +495,7 @@ class GameLoop {
     char score[32];
     memset(score,0,32);
     snprintf(score, 32, "Score: %d",score_);
-    int x = 0;
+    int x = 20;
     int y = 180;
     convert(x,y);
 
@@ -637,6 +653,10 @@ class GameLoop {
   void CheckMarioYCollisions() {
     // 可能的状态有kJump,kFall,kStand,kWalk
     Rect mar = mario_->GetRectClone();
+    // 现在我们只跳到了管子的下面
+    // 我们假设会和管子重合
+    mar.move(0,5);
+
     Mario::State current_state = mario_->GetState();
     // 是否撞到了pow
     Pow* is_pow = nullptr;
@@ -675,7 +695,7 @@ class GameLoop {
     // 游戏逻辑
     if (is_pow) {
       // 如果是跳的时候撞到了pow，那么就执行pow的功能
-      if (current_state == Mario::kJump) {
+      // if (current_state == Mario::kJump) {
         is_pow->SetState(Pow::kHit);
         // 所有乌龟变晕,就是反转状态
         for (auto t : turtle_) {
@@ -688,44 +708,47 @@ class GameLoop {
             t->SetState(Turtle::kWalk);
           }
         }
-        mario_->SetState(Mario::kFall);
+        // mario_->SetState(Mario::kFall);
 
-      }else if(current_state == Mario::kFall){
-        // 那么让就mario站在pow上
-        // TODO 
-      }
+      // }
+      // else if(current_state == Mario::kFall){
+      //   // 那么让就mario站在pow上
+      //   // TODO 
+      // }
     } else if (is_floor) {
       //让mario站在floor上,必然会碰到floor
       // 修正mario的位置
-      if(current_state == Mario::kFall){
-          Rect *t_fl = is_floor->GetRect();
-          Rect *t_mar = is_floor->GetRect();
-
+      Rect *t_mar = mario_->GetRect();
+      Rect *t_fl = is_floor->GetRect();
+      // 下降
+      if(mar.top() > is_floor->GetRect()->top()){
           t_mar->y1_ = t_fl->y2_;
           t_mar->y2_ = t_fl->y1_ + 20;
-
-          mario_->y_vel = 0;
           mario_->SetState(Mario::kStanding);
       }
+      // if(current_state == Mario::kFall){
+      //     Rect *t_fl = is_floor->GetRect();
+      //     Rect *t_mar = is_floor->GetRect();
+
+      //     t_mar->y1_ = t_fl->y2_;
+      //     t_mar->y2_ = t_fl->y1_ + 20;
+
+      //     mario_->y_vel = 0;
+      //     mario_->SetState(Mario::kStanding);
+      // }
     } else if (is_pipe) {
-      // 如果是下落的话 如果是落在了管子上面
-      if (mario_->GetState() == Mario::kFall) {
-      // if (mar.bottom() > is_pipe->GetRect()->bottom()) {
-        //修正mario的位置
-        Rect* t_mar = mario_->GetRect();
-
-        // 还原位置
-        t_mar->move(-mario_->x_vel, -mario_->y_vel);
-        // 到下一层的梯子上
-        t_mar->y1_ = is_pipe->GetRect()->y2_;
-        t_mar->y2_ = t_mar->y1_ + 20;
-        mario_->SetState(Mario::kStanding);
-
-        // t_mar->move(50, 50);
-      } else if (mario_->GetState() == Mario::kJump) {
-      // } else if (mar.top() < is_pipe->GetRect()->top()) {
-        // 如果是跳起来的话
-        //判断水管上面有没有乌龟
+      Rect *t_mar = mario_->GetRect();
+      Rect *t_pipe = is_pipe->GetRect();
+      // 下降
+      if(mar.top() > is_floor->GetRect()->top()){
+          t_mar->y1_ = t_pipe->y2_;
+          t_mar->y2_ = t_pipe->y1_ + 20;
+          mario_->SetState(Mario::kStanding);
+      }
+      //上去  
+      else if(mar.top() < is_floor->GetRect()->top()){
+        //判断是否有乌龟
+        mar.move(0, 15);
         for (auto turtle : turtle_) {
           if (turtle->GetState() == Turtle::kDeath) {
             continue;
@@ -741,22 +764,67 @@ class GameLoop {
             }
           }
         }
-        // 修正mario的位置
-        Rect* rect = mario_->GetRect();
-        if(mario_->y_acc == 40){
-        // 复原原来的位置
-        rect->move(-mario_->x_vel, -mario_->y_acc);
-        // rect->y1_ -= mario_->y_vel;
-        // rect->y2_ -= mario_->y_vel;
-        // rect->y1_ += 20;
-        // rect->y2_ += 20;
-        // 刚好顶着水管
-        rect->move(0, 20);
-        // mario_->SetState(Mario::kFall);
+         //传送到上面去
+          // 如果交集少，那么就传送上去
+        if(computeArea(mar,*t_pipe) < 80){
+            t_mar->move(0,30);
+            mario_->SetState(Mario::kStanding);
         }
-
+        mar.move(0,-15);
+      }else {
+       
       }
+
+      // 如果是下落的话 如果是落在了管子上面
+      // if (mario_->GetState() == Mario::kFall) {
+      // // if (mar.bottom() > is_pipe->GetRect()->bottom()) {
+      //   //修正mario的位置
+      //   Rect* t_mar = mario_->GetRect();
+
+      //   // 还原位置
+      //   t_mar->move(-mario_->x_vel, -mario_->y_vel);
+      //   // 到下一层的梯子上
+      //   t_mar->y1_ = is_pipe->GetRect()->y2_;
+      //   t_mar->y2_ = t_mar->y1_ + 20;
+      //   mario_->SetState(Mario::kStanding);
+
+      //   // t_mar->move(50, 50);
+      // } else if (mario_->GetState() == Mario::kJump) {
+      // // } else if (mar.top() < is_pipe->GetRect()->top()) {
+      //   // 如果是跳起来的话
+      //   //判断水管上面有没有乌龟
+      //   for (auto turtle : turtle_) {
+      //     if (turtle->GetState() == Turtle::kDeath) {
+      //       continue;
+      //     }
+      //     Rect tur = turtle->GetRectClone();
+      //     if (IsRectIntersect(tur, mar)) {
+      //       // 如果有，就把乌龟置为晕的状态，乌龟变为粉色
+      //       // 否则就反转乌龟的状态
+      //       if (turtle->GetState() == Turtle::kVertigo) {
+      //         turtle->SetState(Turtle::kWalk);
+      //       } else {
+      //         turtle->SetState(Turtle::kVertigo);
+      //       }
+      //     }
+      //   }
+      //   // 修正mario的位置
+      //   Rect* rect = mario_->GetRect();
+      //   if(mario_->y_acc == 40){
+      //   // 复原原来的位置
+      //   rect->move(-mario_->x_vel, -mario_->y_acc);
+      //   // rect->y1_ -= mario_->y_vel;
+      //   // rect->y2_ -= mario_->y_vel;
+      //   // rect->y1_ += 20;
+      //   // rect->y2_ += 20;
+      //   // 刚好顶着水管
+      //   rect->move(0, 20);
+      //   // mario_->SetState(Mario::kFall);
+      //   }
+
+      // }
     } 
+    mar.move(0,-5);
     TestMarioIsFalling();
   }
   void TestMarioIsFalling(){
@@ -764,7 +832,7 @@ class GameLoop {
     Rect mar = mario_->GetRectClone();
     Mario::State current_state = mario_->GetState();
     
-    mar.move(0,-5);
+    mar.move(0,-3);
     // 是否撞到了pow
     Pow* is_pow = nullptr;
     Pipe* is_pipe = nullptr;
@@ -804,8 +872,7 @@ class GameLoop {
       // 让mario下落
       mario_->SetState(Mario::kFall);
     }
-    mar.move(0,5);
-
+    mar.move(0,3);
   }
   void delay(int ms) {
     int one_ms = 33333333 / 1000;
