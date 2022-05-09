@@ -204,6 +204,11 @@ class Pow {
     convert(rect);
     display.setForeground(color_);
     display.drawRectangle(true, rect.x1_, rect.y1_, rect.x2_, rect.y2_);
+    display.setForeground(clrWhite);
+    char L[2];
+    memset(L,0,2);
+    snprintf(L, 2, "%d",times);
+    display.drawText(L,75,155);
   }
   void HandleState(){
     if(state_ == kHit){
@@ -444,12 +449,13 @@ class GameLoop {
       Turtle* t = new Turtle(turtle_arr[j][0], turtle_arr[j][1],
                              turtle_arr[j][2], turtle_arr[j][3]);
       turtle_.push_back(t);
+      t->color_ = ChooseColor(j*j);
     }
     turtle_[0]->direction_ = 1;
     turtle_[1]->direction_ = -1;
 
-    turtle_[0]->color_ = clrRed;
-    turtle_[1]->color_ = clrDkCyan;
+    // turtle_[0]->color_ = clrRed;
+    // turtle_[1]->color_ = clrDkCyan;
 
     Pow *pow = new Pow();
     pow_.push_back(pow);
@@ -458,6 +464,17 @@ class GameLoop {
 
     life_ = 3;
     score_ = 0;
+  }
+  int ChooseColor(int i){
+    if(i>13){
+      i = 0;
+    }
+    int co[] = {clrRed,        clrDkRed,      clrGreen,   clrDkGreen,
+                clrBlue,       clrDkBlue,     clrYellow,  clrDkYellow,
+                clrCyan,       clrDkCyan,     clrMagenta, clrDkMagenta,
+                clrLtBlueGray, clrMedBlueGray};
+
+    return co[i];
   }
   void DrawLife(){
     int life_arr[3][4] = {
