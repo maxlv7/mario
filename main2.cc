@@ -564,7 +564,7 @@ class GameLoop {
     for (auto f : turtle_) {
       f->Update();
     }
-
+    lifepipe_->Update();
     DrawScore();
     DrawLife();
     // 这里才真正的改变物体的位置
@@ -576,6 +576,7 @@ class GameLoop {
     if(lifepipe_->GetState() == LifePipe::kReady){
       Rect c_life = lifepipe_->GetRectClone();
       Rect mar = mario_->GetRectClone();
+      mar.move(0, 3);
       if (!IsRectIntersect(mar, c_life)) {
           lifepipe_->SetState(LifePipe::kDeath);
       }
@@ -800,13 +801,6 @@ class GameLoop {
             t->SetState(Turtle::kWalk);
           }
         }
-        // mario_->SetState(Mario::kFall);
-
-      // }
-      // else if(current_state == Mario::kFall){
-      //   // 那么让就mario站在pow上
-      //   // TODO 
-      // }
     } else if (is_floor) {
       //让mario站在floor上,必然会碰到floor
       // 修正mario的位置
