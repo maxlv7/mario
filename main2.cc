@@ -472,7 +472,7 @@ class GameLoop {
   void Loop() {
     while (true) {
       LoopStart();
-      delay(1000);
+      delay(166);
     }
   }
   void LoopStart(){
@@ -563,7 +563,7 @@ class GameLoop {
         continue;
       }
       Rect current = tur->GetRectClone();
-      if(tur->GetState() != Turtle::kWalk){
+      if(tur->GetRect()->bottom() != t->GetRect()->bottom()){
         return;
       }
       if (IsRectIntersect(rect_t, current)) {
