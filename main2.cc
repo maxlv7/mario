@@ -328,11 +328,11 @@ class Mario {
  public:
   Mario() {
     type_ = kMario;
-    state_ = kStanding;
+    state_ = kJump;
     color_ = clrYellow;
-    int x1_ = 50+60;
+    int x1_ = 50+0;
     int y1_ = 30;
-    int x2_ = 60+60;
+    int x2_ = 60+0;
     int y2_ = 50;
     rect_ = Rect(x1_, y1_, x2_, y2_);
     g = 1.01;
@@ -553,6 +553,9 @@ class GameLoop {
     }
   }
   void CheckTurtleXCollisions(Turtle* t) {
+    if(t->GetState() != Turtle::kWalk){
+      return;
+    }
     Rect rect_t = t->GetRectClone();
     // 是否碰到了其它乌龟,如果碰到了的话 那么就改变他们的方向
     for (auto tur : turtle_) {
