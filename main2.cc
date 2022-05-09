@@ -563,6 +563,9 @@ class GameLoop {
         continue;
       }
       Rect current = tur->GetRectClone();
+      if(tur->GetState() != Turtle::kWalk){
+        return;
+      }
       if (IsRectIntersect(rect_t, current)) {
         t->direction_ = -t->direction_;
         tur->direction_ = -tur->direction_;
