@@ -286,7 +286,7 @@ class Turtle {
     } else if (state_ == kVertigo) {
       x_vel = 0;
     } else if (state_ == kFall) {
-      y_vel = -50;
+      y_vel = -10;
     }
   }
   void Kill(){
@@ -423,8 +423,8 @@ class GameLoop {
     }
     int turtle_arr[2][4] = {{20, 180, 40, 190}, {200, 180, 220, 190}};
     for (int j = 0; j < 2; j++) {
-      Turtle* t = new Turtle(turtle_arr[j][0], turtle_arr[j][1],
-                             turtle_arr[j][2], turtle_arr[j][3]);
+      Turtle* t = new Turtle(turtle_arr[j][1], turtle_arr[j][0],
+                             turtle_arr[j][3], turtle_arr[j][2]);
       turtle_.push_back(t);
     }
     turtle_[0]->direction_ = 1;
@@ -474,14 +474,12 @@ class GameLoop {
       f->Update();
     }
     // 更新分数和生命
-    // char score[50];
-    // memset(score,0,50);
-    // snprintf(score, 50, "Your Score: %d",score_);
-    // int x = 160;
-    // int y = 230;
-    // convert(x,y);
-    // // display.
-    // display.drawText(score,x,y);
+    char score[32];
+    memset(score,0,32);
+    snprintf(score, 32, "Score: %d",score_);
+    int x = 0;
+    int y = 180;
+    convert(x,y);
 
     DrawLife();
     // 这里才真正的改变物体的位置
@@ -492,11 +490,7 @@ class GameLoop {
      // 这时候物体的状态已经被改变了，现在物体的位置就在最终的位置上
      // 但是物体的状态还是要下一次才会被绘制
     Rect* rect = mario_->GetRect();
-    // rect->x1_ += mario_->x_vel;
-    // rect->x2_ += mario_->x_vel;
-    // rect->y1_ += mario_->y_vel;
-    // rect->y2_ += mario_->y_vel;
-    rect->move(mario_->x_vel,mario_->x_vel);
+    rect->move(mario_->x_vel,mario_->y_vel);
     if (rect->x2_ <= 0) {
       rect->x1_ = 320 - 10;
       rect->x2_ = 320;
@@ -611,7 +605,6 @@ class GameLoop {
       }
     }
     tur.move(0, 5);
-
   }
   void CheckMarioXCollisions(){
       // 是否撞到了乌龟
