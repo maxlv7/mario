@@ -718,11 +718,13 @@ class GameLoop {
         rect->x1_ = 0;
         rect->x2_ = 10;
       }
-      if (rect->right() <= 5 && rect->top() < 50) {
+      if (rect->right() <= 10 && rect->top() < 50) {
         coin_->SetState(Coin::kDeath);
+        return;
       }
-      if (rect->left() >= 315 && rect->top() < 50) {
+      if (rect->left() >= 310 && rect->top() < 50) {
         coin_->SetState(Coin::kDeath);
+        return;
       }
       // xxxxxxxxxxx
       Rect rect_t = coin_->GetRectClone();
