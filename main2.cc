@@ -197,6 +197,10 @@ class Coin {
   }
   void Update() {
     if (state_ == kDeath) {
+      rect_.x1_ = 0;
+      rect_.x2_ = 0;
+      rect_.y1_ = 0;
+      rect_.y2_ = 0;
       return;
     }
     HandleState();
@@ -219,6 +223,7 @@ class Coin {
       }
     } else if (state_ == kFall) {
       y_vel = -10;
+      x_vel = 0;
     }
   }
   void Kill(){
@@ -656,6 +661,8 @@ class GameLoop {
       f->Update();
     }
     lifepipe_->Update();
+    coin_->Update();
+
     DrawScore();
     DrawLife();
     // 这里才真正的改变物体的位置
@@ -701,12 +708,11 @@ class GameLoop {
       }
       Rect* rect = coin_->GetRect();
       rect->move(coin_->x_vel,coin_->y_vel);
-
-
-      if (rect->right() <= 10 && rect->top() < 50) {
+      
+      if (rect->right() <= 5 && rect->top() < 50) {
         coin_->SetState(Coin::kDeath);
       }
-      if (rect->left() >= 310 && rect->top() < 50) {
+      if (rect->left() >= 315 && rect->top() < 50) {
         coin_->SetState(Coin::kDeath);
       }
       // xxxxxxxxxxx
