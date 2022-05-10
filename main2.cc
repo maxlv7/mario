@@ -307,7 +307,7 @@ class Pow {
   void Update() {
     if(state_ == kDeath){
       return;
-    }
+    } 
     HandleState();
     Rect rect = GetRectClone();
     convert(rect);
@@ -408,10 +408,10 @@ class Turtle {
     else if (state_ == kWalk) {
       // 向左
       if (direction_ == -1) {
-        x_vel = -5;
+        x_vel = -4;
         //向右
       } else if (direction_ == 1) {
-        x_vel = 5;
+        x_vel = 4;
       }
     } else if (state_ == kVertigo) {
       x_vel = 0;
@@ -503,7 +503,7 @@ class Mario {
       SetState(kFall);
     } else if (state_ == kFall) {
       x_vel = 0;
-      y_vel = -5;
+      y_vel = -4;
     }else if(state_ == kDeath){
 
     }
@@ -605,6 +605,15 @@ class GameLoop {
   }
   void Loop() {
     while (true) {
+      if (switch_val == 8) {
+        if (state_ == kGame) {
+          SetState(kPause);
+          switch_val = 0;
+        } else if (state_ == kPause) {
+          SetState(kGame);
+          switch_val = 0;
+        }
+      }
       ++iter_;
       display.clearDisplay(clrBlack);
       if (state_ == kGame) {
@@ -646,15 +655,6 @@ class GameLoop {
   if(life_ <=0){
     SetState(kGameOver);
     return;
-  }
-  if (switch_val == 8) {
-    if (state_ == kGame) {
-      SetState(kPause);
-      switch_val =0;
-    } else if (state_ == kPause) {
-      SetState(kGame);
-      switch_val =0;
-    }
   }
    UpdateAll();
   }
@@ -707,7 +707,7 @@ class GameLoop {
     
   }
   void CheckIfIsWin(){
-    if(kill_num_ >=5){
+    if(kill_num_ >=3){
       SetState(kWin);
     }
   }
@@ -726,6 +726,7 @@ class GameLoop {
           ci->x2_ = 300;
           ci->y2_ = 190;
         }
+        t->SetState(Turtle::kWalk);
       }
     }
   }
@@ -776,8 +777,8 @@ class GameLoop {
           // 重新调整位置
           // 现在在被碰撞的左边
           // 直接向各自的反方向运行
-          coin_->GetRect()->move(5 * coin_->direction_, 0);
-          tur->GetRect()->move(5 * tur->direction_, 0);
+          coin_->GetRect()->move(10 * coin_->direction_, 0);
+          tur->GetRect()->move(10 * tur->direction_, 0);
         }
       }
       // yyyyyyyyyy
@@ -866,8 +867,8 @@ class GameLoop {
         // 重新调整位置
         // 现在在被碰撞的左边
         // 直接向各自的反方向运行
-        t->GetRect()->move(5*t->direction_,0);
-        tur->GetRect()->move(5*tur->direction_,0);
+        t->GetRect()->move(10*t->direction_,0);
+        tur->GetRect()->move(10*tur->direction_,0);
       }
     }
   }
@@ -989,7 +990,7 @@ class GameLoop {
     // 是否撞到了pow
     for (auto pp : pow_) {
       if (pp->GetState() == Pow::kDeath) {
-        continue;
+        break;
       }
       Rect current = pp->GetRectClone();
       if (IsRectIntersect(mar, current)) {
