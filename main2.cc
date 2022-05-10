@@ -217,13 +217,15 @@ class Coin {
       // 向左
       if (direction_ == -1) {
         x_vel = -8;
+        y_vel =0;
         //向右
       } else if (direction_ == 1) {
         x_vel = 8;
+        y_vel = 0;
       }
     } else if (state_ == kFall) {
-      y_vel = -10;
       x_vel = 0;
+      y_vel = -10;
     }
   }
   void Kill(){
@@ -742,7 +744,7 @@ class GameLoop {
       }
       // yyyyyyyyyy
       Rect coin = coin_->GetRectClone();
-      coin.move(0, -5);
+      coin.move(0, -1);
       Floor* is_floor = nullptr;
       Pipe* is_pipe = nullptr;
       for (auto f : floor_) {
@@ -764,6 +766,7 @@ class GameLoop {
       }else{
         coin_->SetState(Coin::kWalk);
       }
+      coin.move(0, 1);
   }
   void AdjustMarioPosition(){
      // 这时候物体的状态已经被改变了，现在物体的位置就在最终的位置上
