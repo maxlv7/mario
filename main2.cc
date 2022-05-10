@@ -728,7 +728,7 @@ class GameLoop {
       for (auto tur : turtle_) {
         Rect current = tur->GetRectClone();
         if (tur->GetRect()->bottom() != coin_->GetRect()->bottom()) {
-          return;
+            continue;
         }
         if (IsRectIntersect(rect_t, current)) {
           coin_->direction_ = -coin_->direction_;
@@ -761,6 +761,8 @@ class GameLoop {
       }
       if (is_floor == nullptr && is_pipe == nullptr) {
         coin_->SetState(Coin::kFall);
+      }else{
+        coin_->SetState(Coin::kWalk);
       }
   }
   void AdjustMarioPosition(){
