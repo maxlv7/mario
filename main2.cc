@@ -569,6 +569,7 @@ class GameLoop {
     score_ = 0;
     state_ = kGame;
     iter_ = 0;
+    kill_num_ = 0;
   }
   int ChooseColor(int i){
     if(i>13){
@@ -627,6 +628,15 @@ class GameLoop {
         display.setForeground(clrWhite);
         display.drawText(buffer, x, y);
         break;
+      }else if(state_ == kWin){
+        char buffer[16];
+        memset(buffer, 0, 16);
+        snprintf(buffer, 16, "You win!");
+        int x = 150;
+        int y = 140;
+        convert(x, y);
+        display.setForeground(clrWhite);
+        display.drawText(buffer, x, y);
       }
       delay(166);
     }
@@ -691,7 +701,33 @@ class GameLoop {
     }
     AdjustCoinPosition();
     CheckLifePipeAlive();
+
+    CheckIfShouAddNewTurtle();
+    CheckIfIsWin();
     
+  }
+  void CheckIfIsWin(){
+    if(kill_num_ >=5){
+      SetState(kWin);
+    }
+  }
+  void CheckIfShouAddNewTurtle(){
+    for (auto t : turtle_) {
+      Rect* ci = t->GetRect();
+      if (t->GetState() == Turtle::kDeath) {
+        if (t->direction_ > 0) {
+          ci->x1_ = 10;
+          ci->y1_ = 180;
+          ci->x2_ = 20;
+          ci->y2_ = 190;
+        } else {
+          ci->x1_ = 290;
+          ci->y1_ = 180;
+          ci->x2_ = 300;
+          ci->y2_ = 190;
+        }
+      }
+    }
   }
   void CheckLifePipeAlive(){
     if(lifepipe_->GetState() == LifePipe::kReady){
@@ -913,6 +949,7 @@ class GameLoop {
         if (t->GetState() == Turtle::kVertigo) {
           // 并且加分
           t->Kill();
+          kill_num_ +=1;
           score_ += 800;
         } else {
           // 死亡 并且从上面复活
@@ -1112,7 +1149,7 @@ class GameLoop {
         pow_.pop_back();
     }
   }
-  enum State {kGame,kPause,kGameOver};
+  enum State {kGame,kPause,kWin,kGameOver};
   State GetState(){return state_;};
   void SetState(State state){state_ = state;};
  private:
@@ -1127,6 +1164,7 @@ class GameLoop {
   int life_;
   int score_;
   int iter_;
+  int kill_num_;
 };
 /**********************************************************/
 int main() {
