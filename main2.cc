@@ -708,7 +708,14 @@ class GameLoop {
       }
       Rect* rect = coin_->GetRect();
       rect->move(coin_->x_vel,coin_->y_vel);
-      
+      if (rect->x2_ <= 0) {
+        rect->x1_ = 320 - 10;
+        rect->x2_ = 320;
+      }
+      if (rect->x1_ >= 320) {
+        rect->x1_ = 0;
+        rect->x2_ = 10;
+      }
       if (rect->right() <= 5 && rect->top() < 50) {
         coin_->SetState(Coin::kDeath);
       }
