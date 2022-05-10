@@ -408,10 +408,10 @@ class Turtle {
     else if (state_ == kWalk) {
       // 向左
       if (direction_ == -1) {
-        x_vel = -4;
+        x_vel = -8;
         //向右
       } else if (direction_ == 1) {
-        x_vel = 4;
+        x_vel = 8;
       }
     } else if (state_ == kVertigo) {
       x_vel = 0;
@@ -681,7 +681,7 @@ class GameLoop {
     AdjustMarioPosition();
     AdjustTurtlePosition();
     // 随机出现coin
-    if(iter_ % 50 == 0 && coin_->GetState()==Coin::kDeath){
+    if(iter_ % 101 == 0 && coin_->GetState()==Coin::kDeath){
       Rect *ci = coin_->GetRect();
       ci->x1_ = 0;
       ci->y1_ = 180;
@@ -690,7 +690,7 @@ class GameLoop {
       coin_->SetState(Coin::kWalk);
       coin_->direction_ = 1;
     }
-    else if (iter_ % 80 == 0 && coin_->GetState() == Coin::kDeath) {
+    else if (iter_ % 181 == 0 && coin_->GetState() == Coin::kDeath) {
       Rect* ci = coin_->GetRect();
       ci->x1_ = 300;
       ci->y1_ = 180;
@@ -1028,7 +1028,7 @@ class GameLoop {
           if (t->GetState() == Turtle::kDeath) {
             continue;
           }
-          if (t->GetState() == Turtle::kWalk) {
+          if (t->GetState() != Turtle::kVertigo) {
             t->SetState(Turtle::kVertigo);
           } else if (t->GetState() == Turtle::kVertigo) {
             t->SetState(Turtle::kWalk);
@@ -1070,7 +1070,7 @@ class GameLoop {
             // 否则就反转乌龟的状态
             if (turtle->GetState() == Turtle::kVertigo) {
               turtle->SetState(Turtle::kWalk);
-            } else {
+            } else if(turtle->GetState() == Turtle::kWalk) {
               turtle->SetState(Turtle::kVertigo);
             }
           }
