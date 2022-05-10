@@ -858,9 +858,9 @@ class GameLoop {
         continue;
       }
       Rect current = tur->GetRectClone();
-      if(tur->GetRect()->bottom() != t->GetRect()->bottom()){
-        return;
-      }
+      // if(tur->GetRect()->bottom() != t->GetRect()->bottom()){
+      //   return;
+      // }
       if (IsRectIntersect(rect_t, current)) {
         t->direction_ = -t->direction_;
         tur->direction_ = -tur->direction_;
@@ -956,21 +956,23 @@ class GameLoop {
           // 死亡 并且从上面复活
           // Rect(150, 195, 170, 205);
           // mario_->SetState(Mario::kDeath);
-          Rect * r = mario_->GetRect();
-          Rect * life = lifepipe_->GetRect();
+          if (computeArea(t->GetRectClone(), mario_->GetRectClone()) >= 90) {
+            Rect* r = mario_->GetRect();
+            Rect* life = lifepipe_->GetRect();
 
-          r->x1_ = 155;
-          r->x2_ = 165;
-          r->y1_ = 205;
-          r->y2_ = 225;
-          life_ -=1;
-          mario_->SetState(Mario::kStanding);
-          lifepipe_->SetState(LifePipe::kReady);
-          // Rect(150, 195, 170, 205);
-          life->x1_ = 150;
-          life->y1_ = 195;
-          life->x2_ = 170;
-          life->y2_ = 205;
+            r->x1_ = 155;
+            r->x2_ = 165;
+            r->y1_ = 205;
+            r->y2_ = 225;
+            life_ -= 1;
+            mario_->SetState(Mario::kStanding);
+            lifepipe_->SetState(LifePipe::kReady);
+            // Rect(150, 195, 170, 205);
+            life->x1_ = 150;
+            life->y1_ = 195;
+            life->x2_ = 170;
+            life->y2_ = 205;
+          }
         }
       }
   }
