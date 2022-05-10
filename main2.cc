@@ -186,7 +186,7 @@ class Coin {
  public:
   Coin(int x1,int y1,int x2,int y2) {
     type_ = kTurtle;
-    state_ = kWalk;
+    state_ = kDeath;
     rect_ = Rect(x1,y1,x2,y2);
     // -1 left 1 right
     direction_ = 1;
@@ -196,6 +196,9 @@ class Coin {
     y_vel =0;
   }
   void Update() {
+    if (state_ == kDeath) {
+      return;
+    }
     HandleState();
     Rect rect = GetRectClone();
     convert(rect);
@@ -315,8 +318,9 @@ class Pow {
       times-=1;
       if(times <=0){
         SetState(kDeath);
-      }
+      }else{
       SetState(kReady);
+      }
     }
   }
   Rect GetRectClone(){
@@ -394,7 +398,7 @@ class Turtle {
     if (state_ == kDeath) {
       return;
     }
-    if (state_ == kWalk) {
+    else if (state_ == kWalk) {
       // 向左
       if (direction_ == -1) {
         x_vel = -5;
@@ -658,7 +662,7 @@ class GameLoop {
     AdjustMarioPosition();
     AdjustTurtlePosition();
     // 随机出现coin
-    if(iter_ % 100 == 0 && coin_->GetState()==Coin::kDeath){
+    if(iter_ % 50 == 0 && coin_->GetState()==Coin::kDeath){
       Rect *ci = coin_->GetRect();
       ci->x1_ = 0;
       ci->y1_ = 180;
@@ -667,7 +671,7 @@ class GameLoop {
       coin_->SetState(Coin::kWalk);
       coin_->direction_ = 1;
     }
-    if (iter_ % 120 == 0 && coin_->GetState() == Coin::kDeath) {
+    else if (iter_ % 80 == 0 && coin_->GetState() == Coin::kDeath) {
       Rect* ci = coin_->GetRect();
       ci->x1_ = 300;
       ci->y1_ = 180;
@@ -699,10 +703,10 @@ class GameLoop {
       rect->move(coin_->x_vel,coin_->y_vel);
 
 
-      if (rect->right() <= 0 && rect->bottom() > 30) {
+      if (rect->right() <= 10 && rect->top() < 50) {
         coin_->SetState(Coin::kDeath);
       }
-      if (rect->left() >= 320 && rect->bottom() > 30) {
+      if (rect->left() >= 310 && rect->top() < 50) {
         coin_->SetState(Coin::kDeath);
       }
       // xxxxxxxxxxx
@@ -842,13 +846,13 @@ class GameLoop {
         // 那么就让它从最上层的另一边出来
         if (is_floor) {
           Rect* p_rect = t->GetRect();
-          if (p_rect->right() <= 0) {
+          if (p_rect->right() <= 10) {
             p_rect->x1_ = 320 - 10;
             p_rect->x2_ = 320;
             p_rect->y1_ = 180;
             p_rect->y2_ = 190;
           }
-          if (p_rect->left() >= 320) {
+          else if (p_rect->left() >= 310) {
             p_rect->x1_ = 0;
             p_rect->x2_ = 10;
             p_rect->y1_ = 180;
