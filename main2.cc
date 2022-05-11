@@ -955,7 +955,7 @@ class GameLoop {
           // 死亡 并且从上面复活
           // Rect(150, 195, 170, 205);
           // mario_->SetState(Mario::kDeath);
-          if (computeArea(t->GetRectClone(), mario_->GetRectClone()) >= 90) {
+          if (computeArea(t->GetRectClone(), mario_->GetRectClone()) >= 60) {
             Rect* r = mario_->GetRect();
             Rect* life = lifepipe_->GetRect();
 
@@ -1021,7 +1021,7 @@ class GameLoop {
     if (is_pow) {
       // 如果是跳的时候撞到了pow，那么就执行pow的功能
       // if (current_state == Mario::kJump) {
-      if (is_pow->GetState() != Pow::kDeath) {
+      if (is_pow->GetState() != Pow::kDeath && mario_->GetState() != Mario::kFall) {
         is_pow->SetState(Pow::kHit);
         // 所有乌龟变晕,就是反转状态
         for (auto t : turtle_) {
