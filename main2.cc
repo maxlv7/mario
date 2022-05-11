@@ -703,7 +703,17 @@ class GameLoop {
 
     CheckIfShouAddNewTurtle();
     CheckIfIsWin();
+    CheckIfIsTimeOut();
     
+  }
+  void CheckIfIsTimeOut(){
+      for(auto tur:turtle_){
+        if(tur->GetState() == Turtle::kVertigo){
+          if(iter_ % 150 == 0){
+            tur->SetState(Turtle::kWalk);
+          }
+        }
+      }
   }
   void CheckIfIsWin(){
     if(kill_num_ >=3){
@@ -980,7 +990,7 @@ class GameLoop {
     Rect mar = mario_->GetRectClone();
     // 现在我们只跳到了管子的下面
     // 我们假设会和管子重合
-    mar.move(0,5);
+    mar.move(0,4);
 
     Mario::State current_state = mario_->GetState();
     // 是否撞到了pow
@@ -1021,7 +1031,7 @@ class GameLoop {
     if (is_pow) {
       // 如果是跳的时候撞到了pow，那么就执行pow的功能
       // if (current_state == Mario::kJump) {
-      if (is_pow->GetState() != Pow::kDeath && mario_->GetState() != Mario::kFall) {
+      if (is_pow->GetState() != Pow::kDeath) {
         is_pow->SetState(Pow::kHit);
         // 所有乌龟变晕,就是反转状态
         for (auto t : turtle_) {
@@ -1061,7 +1071,7 @@ class GameLoop {
       //上去  
       else if(mar.top() < is_pipe->GetRect()->top()){
         //判断是否有乌龟
-        mar.move(0, 15);
+        mar.move(0, 16);
         for (auto turtle : turtle_) {
           if (turtle->GetState() == Turtle::kDeath) {
             continue;
@@ -1084,12 +1094,12 @@ class GameLoop {
             mario_->y_vel = 0;
             mario_->SetState(Mario::kStanding);
         }
-        mar.move(0,-15);
+        mar.move(0,-16);
       }else {
        
       }
     } 
-    mar.move(0,-5);
+    mar.move(0,-4);
     TestMarioIsFalling();
   }
   void TestMarioIsFalling(){
