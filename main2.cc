@@ -709,7 +709,7 @@ class GameLoop {
   void CheckIfIsTimeOut(){
       for(auto tur:turtle_){
         if(tur->GetState() == Turtle::kVertigo){
-          if(iter_ % 150 == 0){
+          if(iter_ % 123 == 0){
             tur->SetState(Turtle::kWalk);
           }
         }
@@ -867,9 +867,6 @@ class GameLoop {
         continue;
       }
       Rect current = tur->GetRectClone();
-      // if(tur->GetRect()->bottom() != t->GetRect()->bottom()){
-      //   return;
-      // }
       if (IsRectIntersect(rect_t, current)) {
         t->direction_ = -t->direction_;
         tur->direction_ = -tur->direction_;
