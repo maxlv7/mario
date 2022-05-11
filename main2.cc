@@ -61,7 +61,6 @@ void buttonInterruptHandler(void* instancePointer) {
 }
 
 /**********************************************************/
-int jjjj = 1;
 enum Type { kMario, kTurtle, kPipe,kLifePipe, kPow, KFloor };
 class Rect{
   public:
@@ -451,9 +450,9 @@ class Mario {
     type_ = kMario;
     state_ = kJump;
     color_ = clrYellow;
-    int x1_ = 50+0;
+    int x1_ = 50+100;
     int y1_ = 30;
-    int x2_ = 60+0;
+    int x2_ = 60+100;
     int y2_ = 50;
     rect_ = Rect(x1_, y1_, x2_, y2_);
     x_vel = 0;
@@ -1022,6 +1021,7 @@ class GameLoop {
     if (is_pow) {
       // 如果是跳的时候撞到了pow，那么就执行pow的功能
       // if (current_state == Mario::kJump) {
+      if (is_pow->GetState() != Pow::kDeath) {
         is_pow->SetState(Pow::kHit);
         // 所有乌龟变晕,就是反转状态
         for (auto t : turtle_) {
@@ -1034,6 +1034,8 @@ class GameLoop {
             t->SetState(Turtle::kWalk);
           }
         }
+      }
+
     } else if (is_floor) {
       //让mario站在floor上,必然会碰到floor
       // 修正mario的位置
