@@ -452,7 +452,7 @@ class Mario {
  public:
   Mario() {
     type_ = kMario;
-    state_ = kJump;
+    state_ = kStanding;
     color_ = clrYellow;
     int x1_ = 50+100;
     int y1_ = 30;
@@ -1099,7 +1099,7 @@ class GameLoop {
         }
          //传送到上面去
           // 如果交集少，那么就传送上去
-        if(computeArea(mar,*t_pipe) < 80){
+        if(computeArea(mar,*t_pipe) < 90){
             t_mar->move(0,30);
             mario_->y_vel = 0;
             mario_->SetState(Mario::kStanding);
