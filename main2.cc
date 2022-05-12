@@ -389,6 +389,8 @@ class Turtle {
     color_ = clrDkRed;
     x_vel = 0;
     y_vel =0;
+    timer_ = false;
+    iter_count_ = 0;
   }
   void Update() {
     if(state_ == kDeath){
@@ -438,6 +440,8 @@ class Turtle {
   int y_vel;
   int direction_;
   uint32_t color_;
+  bool timer_;
+  int iter_count_;
  private:
   State state_;
   Type type_;
@@ -709,9 +713,18 @@ class GameLoop {
   void CheckIfIsTimeOut(){
       for(auto tur:turtle_){
         if(tur->GetState() == Turtle::kVertigo){
-          if(iter_ % 123 == 0){
-            tur->SetState(Turtle::kWalk);
+          if(tur->timer_){
+              tur->iter_count_++;
+              if(tur->iter_count_ % 100 == 0){
+                  tur->iter_count_ = 0;
+                  tur->SetState(Turtle::kWalk);
+              }
+          }else{
+            tur->timer_ = true;
           }
+          // if(iter_ % 123 == 0){
+          //   tur->SetState(Turtle::kWalk);
+          // }
         }
       }
   }
